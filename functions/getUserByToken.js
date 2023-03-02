@@ -1,4 +1,4 @@
-const userModel = require("../models").user;
+const userModel = require("../models").User;
 const output = require("../functions/output.js");
 
 module.exports = (req, res, token, callback) => {
