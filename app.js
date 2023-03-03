@@ -10,8 +10,10 @@ const upload = require("express-fileupload");
 const bodyParser = require("body-parser");
 const output = require("./functions/output");
 const app = express();
+const cors = require("cors");
 
 app.use(upload());
+app.use(cors());
 app.use(bodyParser.json({ limit: process.env.JSON_LIMIT }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));

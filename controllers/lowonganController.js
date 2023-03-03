@@ -2,6 +2,7 @@ const async = require("async");
 const lowonganModel = require("../models").Lowongan;
 const output = require("../functions/output.js");
 const missingKey = require("../functions/missingKey");
+const { Sequelize, Op, Model, DataTypes } = require("sequelize");
 
 exports.create = (req, res) => {
     async.waterfall([
@@ -64,8 +65,50 @@ exports.view = (req, res) => {
     async.waterfall(
         [
             function viewdata(callback) {
+
+                let whereClause = {};
+
+                if (req.query.cari && req.query.cari.trim().length > 0) {
+                    whereClause = {
+                        [Op.or]: [
+                            {
+                                nama: {
+                                    [Op.like]: `%${req.query.cari}%`
+                                }
+                            },
+                            {
+                                deskripsi: {
+                                    [Op.like]: `%${req.query.cari}%`
+                                }
+                            },
+                            {
+                                tingkat_pendidikan_minimal: {
+                                    [Op.like]: `%${req.query.cari}%`
+                                }
+                            },
+                            {
+                                tanggal_dibuka: {
+                                    [Op.like]: `%${req.query.cari}%`
+                                }
+                            },
+                            {
+                                tanggal_ditutup: {
+                                    [Op.like]: `%${req.query.cari}%`
+                                }
+                            },
+                            {
+                                kuota: {
+                                    [Op.like]: `%${req.query.cari}%`
+                                }
+                            },
+                        ]
+                    }
+                }
+
                 lowonganModel
-                    .findAll({ raw: true })
+                    .findAll({
+                        where: whereClause
+                    })
                     .then(function (lowongan) {
                         if (lowongan) {
                             return callback({
@@ -165,7 +208,7 @@ exports.update = (req, res) => {
                 tanggal_ditutup: req.body.tanggal_ditutup,
                 kuota: req.body.kuota
             },
-            { where: { id: req.params.id } }
+                { where: { id: req.params.id } }
             ).then(res => {
                 if (res) {
                     return callback(null, {
@@ -174,10 +217,10 @@ exports.update = (req, res) => {
                     });
                 } else {
                     return callback({
-                      code: "INVALID_REQUEST",
-                      data: "lowongan not found"
+                        code: "INVALID_REQUEST",
+                        data: "lowongan not found"
                     });
-                  }
+                }
             }).catch(err => {
                 return callback({
                     code: "ERR_DATABASE",
